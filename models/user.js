@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
   },
   assignedClass: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
   isTeacher: { type: Boolean },
-
   isAdmint: {type: Boolean , default: false}
 });
 
