@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   assignedClass: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
   isTeacher: { type: Boolean },
-  isAdmin : {type:Boolean , required: false}
+  isAdmin : {type:Boolean , default: false}
 });
 
 userSchema.set("toJSON", {
