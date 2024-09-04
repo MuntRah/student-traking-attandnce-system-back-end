@@ -1,5 +1,6 @@
 const teacherSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  TeacherName: { type: String, required: true },
+  TeacherId : {type: String , required: true},
   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }],
 });
 

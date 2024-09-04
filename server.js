@@ -7,7 +7,9 @@ const mongoose = require("mongoose");
 const testJWTRouter = require("./controllers/test-jwt");
 const usersRouter = require("./controllers/users");
 const profilesRouter = require("./controllers/profiles");
-
+const attendanceCtrl = require("./controllers/attendence");
+const classCtrl = require("./controllers/class");
+const studentCtrl = require("./controllers/student");
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on("connected", () => {
@@ -20,6 +22,9 @@ app.use(express.json());
 app.use("/test-jwt", testJWTRouter);
 app.use("/users", usersRouter);
 app.use("/profiles", profilesRouter);
+app.use("/attendance", attendanceCtrl);
+app.use("/class", classCtrl);
+app.use("/student", studentCtrl);
 
 app.listen(3000, () => {
   console.log("The express app is ready!");
