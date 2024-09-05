@@ -28,4 +28,34 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.put("/:classId", async (req, res) => {
+  try {
+    const existingClass = await Class.findById(req.params.classId);
+    if (!existingClass) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    const updatedClass = await Class.findByIdAndUpdate(
+      req.params.classId,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatedClass);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.delete("/:classId", async (req, res) => {
+  try {
+    const classToDelete = await Class.findById(req.params.classId);
+    if (!classToDelete) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    await Class.findByIdAndDelete(req.params.classId);
+    res.status(200).json({ message: "Class deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;

@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const testJWTRouter = require("./controllers/test-jwt");
 const usersRouter = require("./controllers/users");
 const profilesRouter = require("./controllers/profiles");
-// const attendanceCtrl = require("./controllers/attendence");
+const attendanceCtrl = require("./controllers/attendence");
 const classCtrl = require("./controllers/class");
 const verifyToken = require("./middleware/verify-token");
 // const studentCtrl = require("./controllers/student");
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/test-jwt", testJWTRouter);
 app.use("/users", usersRouter);
 app.use("/profiles", profilesRouter);
-// app.use("/attendance", attendanceCtrl);
+app.use("/attendance", attendanceCtrl);
 
 app.use("/class", verifyToken, classCtrl);
 // app.use("/student", studentCtrl);
