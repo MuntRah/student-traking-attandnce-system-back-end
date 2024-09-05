@@ -1,89 +1,11 @@
-// const express = require('express');
-// const router = express.Router();
-// const bcrypt = require('bcrypt');
-// const User = require('../models/user');
-// const jwt = require('jsonwebtoken');
-
-
-// const SALT_LENGTH = 12;
-
-// router.post('/signup', async (req, res) => {
-//     try {
-//         // Check if the username is already taken
-//         const userInDatabase = await User.findOne({ username: req.body.username });
-//         if (userInDatabase) {
-//             return res.json({error: 'Username already taken.'});
-//         }
-//         // Create a new user with hashed password
-//         const user = await User.create({
-//             username: req.body.username,
-//             hashedPassword: bcrypt.hashSync(req.body.password, SALT_LENGTH)
-//         })
-//         const token = jwt.sign({ username: user.username, _id: user._id }, process.env.JWT_SECRET);
-//         res.status(201).json({ user, token });
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// });
-
-// router.post('/signin', async (req, res) => {
-//     try {
-//         const user = await User.findOne({ username: req.body.username });
-//         if (user && bcrypt.compareSync(req.body.password, user.hashedPassword)) {
-//             const token = jwt.sign({ username: user.username, _id: user._id }, process.env.JWT_SECRET);
-//             res.status(200).json({ token });
-//         } else {
-//             res.status(401).json({ error: 'Invalid username or password.' });
-//         }
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// });
-
-// router.post('/signup', async (req, res) => {
-//     try {
-//         // Check if the username is already taken
-//         const userInDatabase = await User.findOne({ username: req.body.username });
-//         if (userInDatabase) {
-//             return res.json({error: 'Username already taken.'});
-//         }
-//         // Create a new user with hashed password
-//         const user = await User.create({
-//             username: req.body.username,
-//             hashedPassword: bcrypt.hashSync(req.body.password, SALT_LENGTH)
-//         })
-//         const token = jwt.sign({ username: user.username, _id: user._id }, process.env.JWT_SECRET);
-//         res.status(201).json({ user, token });
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// });
-// router.post('/signin', async (req, res) => {
-//     try {
-//         const user = await User.findOne({ username: req.body.username });
-//         if (user && bcrypt.compareSync(req.body.password, user.hashedPassword)) {
-//             const token = jwt.sign({ username: user.username, _id: user._id }, process.env.JWT_SECRET);
-//             res.status(200).json({ token });
-//         } else {
-//             res.status(401).json({ error: 'Invalid username or password.' });
-//         }
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }
-// });
-
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-//models
 const User = require("../models/user");
-const teacher = require("../models/teacher");
-const Student = require("../models/student")
-const SALT_LENGTH = Number(process.env.SALT_ROUNDS);
+const jwt = require("jsonwebtoken");
+const Teacher = require("../models/teacher");
+
+const SALT_LENGTH = 12;
 
 router.post("/signup", async (req, res) => {
   try {
@@ -92,11 +14,12 @@ router.post("/signup", async (req, res) => {
     if (userInDatabase) {
       return res.json({ error: "Username already taken." });
     }
-    const newCustomer = await Customer.create({})
+    // Create a new user with hashed password
     const user = await User.create({
       username: req.body.username,
-      hashedPassword: bcrypt.hashSync(req.body.password, SALT_LENGTH),
-      customer:newCustomer._id
+      password: bcrypt.hashSync(req.body.password, SALT_LENGTH),
+      role: req.body.role,
+      email: req.body.email,
     });
     const token = jwt.sign(
       { username: user.username, _id: user._id },
@@ -108,13 +31,12 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-
 router.post("/signin", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
-    if (user && bcrypt.compareSync(req.body.password, user.hashedPassword)) {
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
       const token = jwt.sign(
-        { username: user.username, _id: user._id },
+        { username: user.username, _id: user._id, role: user.role },
         process.env.JWT_SECRET
       );
       res.status(200).json({ token });
@@ -125,46 +47,28 @@ router.post("/signin", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
-router.post("/teacher-signup", async (req, res) => {
+router.get("/teacher", async (req, res) => {
   try {
-    const userInDatabase = await User.findOne({ username: req.body.username });
-    if (userInDatabase) {
-      return res.json({ error: "Username already taken." });
-    }
-    const teacher = await teacher.create({
-      TeacherName:req.body.TeacherName
-    })
-
-    const user = await User.create({
-      username: req.body.username,
-      hashedPassword: bcrypt.hashSync(req.body.password, SALT_LENGTH),
-      teacher: teacher._id
-    });
-    const token = jwt.sign(
-      { username: user.username, _id: user._id },
-      process.env.JWT_SECRET
+    const teachers = await User.find({ role: "teacher" }).select(
+      "username _id email"
     );
-    res.status(201).json({ user, token });
+    if (!teachers || teachers.length === 0) {
+      return res.status(404).json({ message: "No teachers found" });
+    }
+    res.json(teachers);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
-
-router.post("/teacher-signin", async (req, res) => {
+router.get("/student", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.body.username });
-    
-    if (user.teacher && bcrypt.compareSync(req.body.password, user.hashedPassword)) {
-      const token = jwt.sign(
-        { username: user.username, _id: user._id, teacher: user.teacher },
-        process.env.JWT_SECRET
-      );
-      res.status(200).json({ token });
-    } else {
-      res.status(401).json(error);
+    const students = await User.find({ role: "student" }).select(
+      "username _id email"
+    );
+    if (!students || students.length === 0) {
+      return res.status(404).json({ message: "No Student found" });
     }
-    
+    res.json(students);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
