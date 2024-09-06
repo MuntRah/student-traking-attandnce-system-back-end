@@ -15,7 +15,7 @@ router.post("/new", async (req, res) => {
 });
 
 // Get class details
-router.get("/", async (req, res) => {
+router.get("/:classId", async (req, res) => {
   const { classId } = req.params;
   try {
     const classData = await Class.findById(classId)
