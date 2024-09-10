@@ -14,6 +14,7 @@ const adminCtrl = require("./controllers/admin");
 const verifyToken = require("./middleware/verify-token");
 const isTeacher = require("./middleware/isTeacher");
 const isAdmin = require("./middleware/isAdmin");
+
 // const studentCtrl = require("./controllers/student");
 mongoose.connect(process.env.MONGODB_URI);
 
