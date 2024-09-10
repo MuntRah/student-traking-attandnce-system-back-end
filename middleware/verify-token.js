@@ -7,9 +7,7 @@ function verifyToken(req, res, next) {
 
     // Assign decoded payload to req.user
     req.user = decoded;
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Permission denied" });
-    }
+
     // Call next() to invoke the next middleware function
     next();
   } catch (error) {
