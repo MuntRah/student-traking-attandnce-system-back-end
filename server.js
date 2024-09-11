@@ -14,8 +14,7 @@ const adminCtrl = require("./controllers/admin");
 const verifyToken = require("./middleware/verify-token");
 const isTeacher = require("./middleware/isTeacher");
 const isAdmin = require("./middleware/isAdmin");
-
-// const studentCtrl = require("./controllers/student");
+const classAttendanceCtrl = require("./controllers/classAttandance");
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on("connected", () => {
@@ -32,9 +31,7 @@ app.use("/attendance", verifyToken, isTeacher, attendanceCtrl);
 app.use("/admin/users", verifyToken, isAdmin, adminCtrl);
 app.use("/admin/class", verifyToken, isAdmin, classCtrl);
 app.use("/class", verifyToken, classDetailCtrl);
-
-// app.use("/student", studentCtrl);
-
+app.use("/class-attendance", verifyToken, classAttendanceCtrl);
 app.listen(3000, () => {
   console.log("The express app is ready!");
 });

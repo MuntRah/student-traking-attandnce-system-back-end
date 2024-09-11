@@ -4,12 +4,19 @@ const router = express.Router();
 
 // Create a new class
 router.post("/new", async (req, res) => {
-  const { className, classCode, teacherId, schedule } = req.body;
+  const { className, classCode, teacherId, schedule, students } = req.body;
   try {
-    const newClass = new Class({ className, classCode, teacherId, schedule });
+    const newClass = new Class({
+      className,
+      classCode,
+      teacherId,
+      schedule,
+      students,
+    });
     await newClass.save();
     res.status(201).json({ message: "Class created successfully" });
   } catch (err) {
+    console.error("Error creating class:", err); // Log any errors
     res.status(500).json({ error: err.message });
   }
 });
