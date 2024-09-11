@@ -9,9 +9,10 @@ router.get("/:classId/student/:studentId", async (req, res) => {
 
   try {
     // Find the class by ID
-    const classData = await Class.findById(classId)
-      .populate("teacherId", "username email")
-      .populate("students", "username email");
+    const classData = await Class.findById(classId).populate(
+      "teacherId",
+      "username email"
+    );
 
     if (!classData) {
       return res.status(404).json({ message: "Class not found" });
@@ -32,7 +33,7 @@ router.get("/:classId/student/:studentId", async (req, res) => {
       studentId,
     });
 
-    res.status(200).json({ classData, attendanceRecords });
+    res.status(200).json({ attendanceRecords });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
