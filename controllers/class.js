@@ -2,7 +2,6 @@ const express = require("express");
 const Class = require("../models/class");
 const router = express.Router();
 
-// Create a new class
 router.post("/new", async (req, res) => {
   const { className, classCode, teacherId, schedule, students } = req.body;
   try {
@@ -16,12 +15,11 @@ router.post("/new", async (req, res) => {
     await newClass.save();
     res.status(201).json({ message: "Class created successfully" });
   } catch (err) {
-    console.error("Error creating class:", err); // Log any errors
+    console.error("Error creating class:", err); 
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get class details
 router.get("/:classId", async (req, res) => {
   const { classId } = req.params;
   try {
@@ -34,7 +32,6 @@ router.get("/:classId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// UPPDATE
 router.put("/:classId", async (req, res) => {
   try {
     const existingClass = await Class.findById(req.params.classId);

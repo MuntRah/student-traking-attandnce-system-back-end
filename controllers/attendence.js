@@ -8,14 +8,12 @@ const Class = require("../models/class");
 router.get("/index/:classId", async (req, res) => {
   try {
     const { classId } = req.params;
-    const teacherId = req.user._id; // Make sure this is populated correctly
+    const teacherId = req.user._id; 
 
-    // Check if classId is valid
     if (!mongoose.Types.ObjectId.isValid(classId)) {
       return res.status(400).json({ message: "Invalid class ID" });
     }
 
-    // Fetch attendance records
     const attendance = await Attendance.find({
       classId,
       markedBy: teacherId,
@@ -25,7 +23,6 @@ router.get("/index/:classId", async (req, res) => {
       return res.status(404).json({ message: "No attendance found" });
     }
 
-    // Respond with found attendance records
     res.status(200).json(attendance);
   } catch (error) {
     console.error(error);
@@ -33,14 +30,12 @@ router.get("/index/:classId", async (req, res) => {
   }
 });
 
-// Route to mark attendance
 router.post("/new/:classId", async (req, res) => {
   const { classId } = req.params;
-  const { attendanceRecords, date } = req.body; // Expects an object where key = studentId, value = attendance status
-  const teacherId = req.user._id; // From auth middleware
+  const { attendanceRecords, date } = req.body; 
+  const teacherId = req.user._id; 
 
   try {
-    // Check if class exists and fetch the associated teacher and students
     const classData = await Class.findById(classId)
       .populate("teacherId")
       .populate("students");
@@ -49,28 +44,26 @@ router.post("/new/:classId", async (req, res) => {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    // Check if the logged-in teacher is assigned to this class
     if (classData.teacherId._id.toString() !== teacherId.toString()) {
       return res.status(403).json({
         message: "You are not authorized to mark attendance for this class",
       });
     }
 
-    // Prepare attendance records to save
     const attendanceRecordsToSave = classData.students
       .map((student) => {
-        const status = attendanceRecords[student._id]; // Get the attendance status from request body
+        const status = attendanceRecords[student._id]; 
         if (status) {
           return {
             classId,
             studentId: student._id,
-            date: date || new Date(), // Use provided date or default to today's date
+            date: date || new Date(), 
             status,
             markedBy: teacherId,
           };
         }
       })
-      .filter(Boolean); // Remove undefined values if no status is provided
+      .filter(Boolean); 
 
     if (attendanceRecordsToSave.length === 0) {
       return res
@@ -78,7 +71,6 @@ router.post("/new/:classId", async (req, res) => {
         .json({ message: "No valid attendance records provided." });
     }
 
-    // Save attendance records in bulk
     const savedRecords = await Attendance.insertMany(attendanceRecordsToSave);
 
     res.status(201).json({
@@ -96,7 +88,6 @@ router.put("/:attendanceId", async (req, res) => {
   const { status } = req.body;
 
   try {
-    // Find the attendance by ID and update the status
     const attendance = await Attendance.findByIdAndUpdate(
       attendanceId,
       { status },
